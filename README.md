@@ -9,17 +9,6 @@ We introduce the **Positional Encoding Field (PE-Field)**, which extends positio
 
 ---
 
-## TODO List
-
-- [ ] Release training codes  
-- [ ] Support Spatial Image Editing
-- [ ] Support Image-to-Video models (e.g., Wan)  
-- [ ] Support Qwen-Image  
-- [x] Support multi-step transformation  
-- [x] Support FLUX-Kontext  
-
----
-
 ## Environment Setup
 
 To create a Python environment named **pe_field** under the `./envs` directory and install all dependencies from `requirements.txt`, run:
@@ -94,18 +83,4 @@ python ./infer_viewchanger_single_v2.py \
 </p>
 
 ---
-
-## Citation
-
-If you find our work useful in your research, we gratefully request that you consider citing our paper:
-
-```bibtex
-@article{your2025pefield,
-  title   = {Positional Encoding Field},
-  author  = {Your Name and Others},
-  journal = {arXiv preprint arXiv:2501.xxxxx},
-  year    = {2025}
-}
-```
-
 
