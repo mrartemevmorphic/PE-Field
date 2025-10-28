@@ -59,6 +59,12 @@ ls -lh checkpoints/transformer/
 which python  # Should point to ./envs/pe_field/bin/python
 ```
 
+### 5. Configure Git
+```bash
+git config --global user.email "maksim.artemev@morphic.com"
+git config --global user.name "Max"
+```
+
 ## Architecture
 
 ### Core Components
