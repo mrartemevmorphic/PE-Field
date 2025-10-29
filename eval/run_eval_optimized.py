@@ -1,4 +1,5 @@
 import os
+import sys
 import subprocess
 import logging
 import math
@@ -7,6 +8,9 @@ from pathlib import Path
 from PIL import Image
 import glob
 from typing import List, Tuple, Dict
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from infer_viewchanger_wrapper import ViewChangerInference
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -58,6 +62,11 @@ total_expected_runs = len(images) * total_steps
 
 logger.info(f"Starting evaluation with {len(trajectories)} trajectories and {len(images)} images")
 logger.info(f"Expected total runs: {total_expected_runs}")
+logger.info(f"Loading models once...")
+
+inferencer = ViewChangerInference(moge_checkpoint, transformer_checkpoint, flux_kontext)
+
+logger.info(f"Models loaded successfully. Starting inference...")
 
 total_runs = 0
 for img in images:
@@ -77,25 +86,13 @@ for img in images:
             output_dir = os.path.join(output_base, combined_filename)
             os.makedirs(output_dir, exist_ok=True)
             
-            cmd = [
-                "/home/ubuntu/PE-Field/envs/pe_field/bin/python", 
-                "/home/ubuntu/PE-Field/infer_viewchanger_single_v2.py",
-                "--moge_checkpoint_path", moge_checkpoint,
-                "--transformer_checkpoint_path", transformer_checkpoint,
-                "--flux_kontext_path", flux_kontext,
-                "--input_image", img_path,
-                "--output_dir", output_dir,
-                "--phi", str(phi),
-                "--theta", str(theta)
-            ]
-            
             logger.info(f"Run {total_runs + 1}/{total_expected_runs}: {img} - {traj_name} step {step_idx+1}/{len(traj_points)} (phi={phi:+d}°, theta={theta:+d}°)")
             
             start_time = time.time()
-            result = subprocess.run(cmd, capture_output=False)
+            success = inferencer.process_single(img_path, phi, theta, 0, output_dir)
             elapsed_time = time.time() - start_time
             
-            if result.returncode != 0:
+            if not success:
                 logger.error(f"Failed to process {img} at phi={phi}, theta={theta} after {elapsed_time:.2f}s")
             else:
                 original_imgs = glob.glob(os.path.join(output_dir, "*_original.png"))
@@ -122,3 +119,4 @@ for img in images:
 
 logger.info(f"Completed {total_runs} inference runs!")
 logger.info(f"Results saved in: {final_output_dir}")
+

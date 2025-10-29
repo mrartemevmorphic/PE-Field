@@ -7,35 +7,54 @@ PE-Field (Positional Encoding Field) is a novel view synthesis system that uses 
 
 When setting up this repository from scratch, follow these steps:
 
-### 1. Mount GSC Directory
-Mount the Google Cloud Storage bucket to `./mount`:
+### 1. Install gcsfuse
+Install gcsfuse to mount GCS bucket:
 ```bash
-gcsfuse <bucket-name> /home/ubuntu/PE-Field/mount
+curl -L https://github.com/GoogleCloudPlatform/gcsfuse/releases/download/v2.0.0/gcsfuse_2.0.0_amd64.deb -o /tmp/gcsfuse.deb
+sudo dpkg -i /tmp/gcsfuse.deb
+sudo apt-get install -f -y
 ```
 
-### 2. Restore Model Weights
+### 2. Install and Authenticate gcloud CLI
+```bash
+sudo snap install google-cloud-cli --classic
+gcloud auth login
+gcloud auth application-default login
+```
+
+### 3. Mount GCS Directory
+Mount the Google Cloud Storage bucket to `./mount`:
+```bash
+cd /home/ubuntu/PE-Field
+mkdir -p mount
+gcsfuse --implicit-dirs morphic-research ./mount
+```
+
+### 4. Restore Model Weights
 Copy pre-downloaded model weights from mount directory instead of downloading (saves time, ~56GB total):
 
 ```bash
 cd /home/ubuntu/PE-Field
 
 # Copy FLUX.1-Kontext-dev weights (32GB)
-cp -r ./mount/weights/FLUX.1-Kontext-dev ./
+cp -r ./mount/mrartemev/weights/FLUX.1-Kontext-dev ./
 
 # Copy MoGe weights (1.3GB)
 mkdir -p ./moge-2-vitl-normal
-cp ./mount/weights/moge-2-vitl-normal/model.pt ./moge-2-vitl-normal/
+cp ./mount/mrartemev/weights/moge-2-vitl-normal/model.pt ./moge-2-vitl-normal/
 
 # Copy transformer weights (23GB)
-mkdir -p ./checkpoints/transformer
-cp ./mount/weights/checkpoints/transformer/* ./checkpoints/transformer/
+cp -r ./mount/mrartemev/weights/checkpoints/transformer/* ./checkpoints/transformer/
 ```
 
-### 3. Create Virtual Environment
+### 5. Install python3-venv
+```bash
+sudo apt install -y python3.10-venv
+```
+
+### 6. Create Virtual Environment
 ```bash
 cd /home/ubuntu/PE-Field
-
-create it from req.txt
 
 # Create virtual environment
 python3 -m venv ./envs/pe_field
@@ -50,7 +69,7 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 4. Verify Setup
+### 7. Verify Setup
 Check that all components are in place:
 ```bash
 ls -lh FLUX.1-Kontext-dev/
@@ -59,7 +78,7 @@ ls -lh checkpoints/transformer/
 which python  # Should point to ./envs/pe_field/bin/python
 ```
 
-### 5. Configure Git
+### 8. Configure Git (Optional)
 ```bash
 git config --global user.email "maksim.artemev@morphic.com"
 git config --global user.name "Max"
